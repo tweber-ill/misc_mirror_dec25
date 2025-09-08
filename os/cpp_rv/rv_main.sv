@@ -18,6 +18,10 @@ module main
 	// keys
 	input  [1 : 0] key,
 
+	// segment display
+	//output [6:0] seg,
+	//output seg_sel,
+
 	// leds
 	output [5 : 0] led,
 	output [7 : 0] ledg
@@ -42,9 +46,11 @@ clk_slow (.in_clk(clk27), .in_rst(1'b0), .out_clk(clock));
 // ----------------------------------------------------------------------------
 logic rst, btn;
 
+// active-low button
 debounce_switch debounce_key0(.in_clk(clk27), .in_rst(1'b0),
 	.in_signal(~key[0]), .out_debounced(rst));
 
+// active-low button
 debounce_button debounce_key1(.in_clk(clock), .in_rst(1'b0),
 	.in_signal(~key[1]), .out_debounced(btn));
 // ----------------------------------------------------------------------------
@@ -278,6 +284,7 @@ always_comb begin
 				next_data_watch_2 = write_data_sel;
 		end
 
+		// TODO: may need to stay in this state for two cycles
 		CPU_WRITE: begin
 			cpu_write_enable = 1'b1;
 			next_state_memaccess = CPU_MEM_READY;
@@ -310,6 +317,30 @@ assign addr_watch_2 = (16'h3f04 >> 2'h2);
 assign ledg[7:0] = data_watch[7 : 0];
 //assign ledg[7:0] = addr_1[7 : 0];
 //assign ledg[7:0] = cpu_addr[7 : 0];
+// ---------------------------------------------------------------------------
+
+
+// ---------------------------------------------------------------------------
+// segment display for watched variable
+// ---------------------------------------------------------------------------
+/*wire sevenseg_clk;
+localparam SEVENSEG_CLK = 100;
+
+clkgen #(
+	.MAIN_CLK_HZ(MAIN_CLK), .CLK_HZ(SEVENSEG_CLK),
+	.CLK_INIT(1'b1)
+)
+sevenseg_clk_mod
+(
+	.in_clk(clk27), .in_rst(reset),
+	.out_clk(sevenseg_clk)
+);
+
+sevenseg_multi #(
+	.NUM_LEDS(2), .ZERO_IS_ON(1'b1),
+	.INVERSE_NUMBERING(1'b1), .ROTATED(1'b1))
+sevenseg_mod(.in_clk(sevenseg_clk), .in_rst(reset),
+	.in_digits(data_watch[7:0]), .out_leds(seg), .out_sel(seg_sel));*/
 // ---------------------------------------------------------------------------
 
 
